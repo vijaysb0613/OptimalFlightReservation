@@ -1,12 +1,23 @@
 class Flight:
-    def __init__(self, flight_no, departure_time, arrival_time, price):
+    def __init__(self, flight_no, departure_time, arrival_time, price,available_seats):
         self.flight_no = flight_no
         self.departure_time = departure_time
         self.arrival_time = arrival_time
         self.price = price
+        self.available_seats = available_seats 
 
     def __repr__(self):
-        return f"Flight({self.flight_no}, {self.departure_time}, {self.arrival_time}, {self.price})"
+        return f"Flight({self.flight_no}, {self.departure_time}, {self.arrival_time}, {self.price}, Seats: {self.available_seats})"
+    
+    def book_ticket(self):
+        if self.available_seats > 0:
+            self.available_seats -= 1
+            print(f"Ticket booked successfully for {self.flight_no}.")
+            return True
+        else:
+            print(f"Sorry, no seats available for flight {self.flight_no}.")
+            return False
+        
 class Node:
     def __init__(self, flight):
         self.flight = flight
@@ -225,9 +236,10 @@ def disp_info():
 
 disp_info()
 # Example Usage:
-FL123 = Flight("FL123", "08:00", "10:00", 500)
-FL124 = Flight("FL124", "09:00", "11:00", 300)
-FL125 = Flight("FL125", "12:00", "14:00", 450)
+# Example Usage:
+FL123 = Flight("FL123", "08:00", "10:00", 500, 5)  # 5 available seats
+FL124 = Flight("FL124", "09:00", "11:00", 300, 3)  # 3 available seats
+FL125 = Flight("FL125", "12:00", "14:00", 450, 0)  # 0 available seats
 
 LAX = Airport()
 LAX.add_flight(FL123, "ATL")
@@ -252,18 +264,15 @@ else:
     closest_flight = LAX.find_flight_by_price(target, price)
     if closest_flight:
         print(f"Closest flight to {price} for {target}: {closest_flight}")
+
+        # Prompt user for booking
+        confirm_booking = input("Do you want to book this flight? (yes/no): ").strip().lower()
+        if confirm_booking == 'yes':
+            if closest_flight.book_ticket():
+                print(f"Successfully booked your flight: {closest_flight}")
+            else:
+                print(f"Failed to book flight: {closest_flight}")
     else:
         print(f"No matching flights found for price {price} at destination {target}.")
-print("-----------------------------------------------------------------------------------")
-if start not in airports or target not in airports:
-    print("Invalid airport code. Please enter valid airport codes.")
-else:
-    start_ID = airports[start]  
-    target_ID = airports[target]  
-    distance, path = dijkstra(graph, start_ID, target_ID)
-    airport_names = list(airports.keys())
-    print(f"Shortest distance from {start_ID} to {target_ID}: {distance} km")
-    print("Path:", " -> ".join(airport_names[i] for i in path))
-    price=input()
-    closest_flight = LAX.find_flight_by_price(target, price)
-    print(closest_flight)
+
+
