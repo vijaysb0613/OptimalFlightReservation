@@ -1,7 +1,7 @@
 import random
-
+from tabulate import tabulate
 class Flight:
-    def __init__(self, flight_no, departure_time, arrival_time, price, total_seats=100):
+    def __init__(self, flight_no, departure_time, arrival_time, price,total_seats):
         self.flight_no = flight_no
         self.departure_time = departure_time
         self.arrival_time = arrival_time
@@ -12,15 +12,34 @@ class Flight:
     def book_seat(self):
         if self.remaining_seats > 0:
             self.remaining_seats -= 1
-            print(f"Seat booked on flight {self.flight_no}. Remaining seats: {self.remaining_seats}")
+            print(f"✅ Seat successfully booked on flight {self.flight_no}!")
+            self.print_ticket()
         else:
-            print("No seats available on this flight.")
+            print(f"🚫 No seats available on flight {self.flight_no}.")
+            print("Please try another flight or check back later.")
+    def print_ticket(self):
+        print("\n" + "="*40)
+        print(f"🎟  Flight Ticket for {self.flight_no}")
+        print("="*40)
+        print(f"🛫 Departure: {self.departure_time}")
+        print(f"🛬 Arrival: {self.arrival_time}")
+        print(f"💸 Price: ${self.price}")
+        print(f"💺 Remaining seats: {self.remaining_seats}")
+        print("="*40 + "\n")
 
-    def __repr__(self):
-        return (f"Flight({self.flight_no}, {self.departure_time}, {self.arrival_time}, "
-                f"{self.price}, Seats Left: {self.remaining_seats})")
+
+    def repr(self):
+        return f"Flight({self.flight_no}, {self.departure_time}, {self.arrival_time}, {self.price})"
+    def info(self):
+        return {
+            "Flight No": self.flight_no,
+            "Departure": self.departure_time,
+            "Arrival": self.arrival_time,
+            "Price": f"${self.price}"
+        }
+
 class Node:
-    def __init__(self, flight):
+     def __init__(self, flight):
         self.flight = flight
         self.left = None
         self.right = None
@@ -32,7 +51,6 @@ class RedBlackTree:
         self.nil = Node(None)  # Sentinel node for leaves.
         self.nil.color = "BLACK"
         self.root = self.nil
-
     def insert(self, flight):
         # Create the new node to insert.
         new_node = Node(flight)
@@ -169,17 +187,28 @@ class RedBlackTree:
             print(f"{node.flight.price} ({node.color})")  # Print the price and color
             self._print_tree_helper(node.left, indent, False)
             self._print_tree_helper(node.right, indent, True)
-def print_flights_table(airports_with_flights):
-    for airport_code, airport in airports_with_flights.items():
+def print_flights_table(airports_with_flights, airport_codes=None):
+# If no specific airport codes are provided, print all airports
+    if airport_codes is None:
+        airport_codes = airports_with_flights.keys()
+
+    for airport_code in airport_codes:
+            # Check if the airport code exists in the dictionary
+        if airport_code not in airports_with_flights:
+            print(f"\n🚫 Airport code {airport_code} not found.")
+            continue
+
+        airport = airports_with_flights[airport_code]
         print(f"\nFlights from {airport_code}:\n")
-        # Print the table headers
-        print(f"{'Destination':<12} {'Flight No':<10} {'Departure':<10} {'Arrival':<10} {'Price':<10}")
+            # Print the table headers
+        print(f"{'Destination':<12} {'Flight No':<10} {'Departure':<10} {'Arrival':<10} {'Price':<10}{'Color':<6}")
         print("-" * 60)
 
-        # Loop through each destination and flight tree to display flights in tabular form
+            # Loop through each destination and red-black tree to display flights in tabular form
         for destination, rbtree in airport.flights_by_destination.items():
             flights = []
-            colors=[]
+            colors = []
+            
             # Helper function to collect all flights from the red-black tree
             def collect_flights(node):
                 if node != rbtree.nil:
@@ -190,18 +219,18 @@ def print_flights_table(airports_with_flights):
 
             # Collect and print each flight for this destination
             collect_flights(rbtree.root)
-            i=0
-            for flight in flights:
-                print(f"{destination:<12} {flight.flight_no:<10} {flight.departure_time:<10} {flight.arrival_time:<10} {flight.price:<10}")
-                i+=1
+            for i, flight in enumerate(flights):
+                print(f"{destination:<12} {flight.flight_no:<10} {flight.departure_time:<10} {flight.arrival_time:<10} {flight.price:<10}{colors[i]:<10}")
         
-        print("-" * 60)  # Divider line between airports
+        print("-" * 60)
+
+ # Divider line between airports
 
 # Call the function to display flights in table format
 class Airport:
-    def __init__(self,name):
+    def __init__(self, name):
         self.flights_by_destination = {}  # Dictionary of red-black trees for each destination.
-        self.name=name
+        self.name = name
 
     def add_flight(self, flight, destination):
         if destination not in self.flights_by_destination:
@@ -291,52 +320,48 @@ disp_info()
 
 # User interaction for selecting airports and price input
 print("-----------------------------------------------------------------------------------")
-'''
-if start not in airports or target not in airports:
-    print("Invalid airport code. Please enter valid airport codes.")
-else:
-    start_ID = airports[start]  
-    target_ID = airports[target]  
-    distance, path = dijkstra(graph, start_ID, target_ID)
-    airport_names = list(airports.keys())
-    print(f"Shortest distance from {start_ID} to {target_ID}: {distance} km")
-    print("Path:", " -> ".join(airport_names[i] for i in path))
-    price=input()
-    closest_flight = LAX.find_flight_by_price(target, price)
-    print(closest_flight)
-    
-'''
 def random_time():
     hour = random.randint(0, 23)
     minute = random.randint(0, 59)
     return f"{hour:02}:{minute:02}"
 
 # Sample function to generate flights for each direct connection
-def generate_flights_for_airport(airport_code, airport_index):
+def generate_flights_for_airport(airport_code, airport_index, num_flights=3):
     flights = []
     for dest_index, distance in enumerate(graph[airport_index]):
         if distance != float('inf') and distance > 0:  # Only consider reachable destinations
-            flight_no = f"FL{random.randint(100, 999)}"  # Generate unique flight number
-            departure_time = random_time()
-            arrival_time = random_time()
-            price = random.randint(200, 2000)  # Random price for the flight
-            flight = Flight(flight_no, departure_time, arrival_time, price)
-            flights.append((dest_index, flight))  # Store the destination and flight
+            for _ in range(num_flights):  # Generate multiple flights per destination
+                flight_no = f"FL{random.randint(100, 999)}"  # Generate unique flight number
+                departure_time = random_time()
+                arrival_time = random_time()
+                price = random.randint(200, 2000)  # Random price for the flight
+                flight = Flight(flight_no, departure_time, arrival_time, price,5)
+                flights.append((dest_index, flight))  # Store the destination and flight
     return flights
+
 
 # Initialize airports and add flights
 airports_with_flights = {}
 
 for airport_code, airport_index in airports.items():
     airport = Airport(airport_code)
-    flights = generate_flights_for_airport(airport_code, airport_index)
+    # Specify the number of flights per destination here
+    flights = generate_flights_for_airport(airport_code, airport_index, num_flights=5)
     for dest_index, flight in flights:
         destination_code = list(airports.keys())[dest_index]  # Get destination airport code
         airport.add_flight(flight, destination_code)
-    airports_with_flights[airport_code] = airport  # Store airport with its flights
+    airports_with_flights[airport_code] = airport 
 
 # Print all flights going to each destination from every airport
-print_flights_table(airports_with_flights)
+
+selected_airports = input("Enter the airport codes you want to display : ")
+
+# Convert the input string to a list by splitting on commas and removing extra spaces
+selected_airports = [code.strip() for code in selected_airports.split(" ")]
+
+# Print only flights from the selected airports
+print_flights_table(airports_with_flights, selected_airports)
+
 # Displaying the flights added to each airport
 start = input("Enter the start airport code: ").upper()
 target = input("Enter the target airport code: ").upper()
@@ -353,35 +378,34 @@ else:
     print(path)
 
     # Retrieve the airport object for the start location
-start_airport = airports_with_flights[get_airport_code_by_index(path[0])]
-price = float(input("Enter your desired price: "))
+
+    start_airport = airports_with_flights[get_airport_code_by_index(path[0])]
+    price = input("Enter your desired price: ")
+    table_data = []  # Store data for table display
 
 for i in range(1, len(path)):
-    destination_code = get_airport_code_by_index(path[i])
-    
-    # Find the closest flight to the specified price
+    destination_code = get_airport_code_by_index(path[i])  # Get the correct destination code as a string
     closest_flight = start_airport.find_flight_by_price(destination_code, price)
-    
+    closest_flight.book_seat()
     if closest_flight:
-        print(f"\nClosest available flight from {get_airport_code_by_index(path[i-1])} to {destination_code}:\n")
-     
-        print(f"Flight No: {closest_flight.flight_no}, Departure: {closest_flight.departure_time}, "
-              f"Arrival: {closest_flight.arrival_time}, Price: {closest_flight.price}, "
-              f"Seats Left: {closest_flight.remaining_seats}")
-        print("-----------------------------------------------------------------------------------\n")
-        confirm = input("Do you want to book this flight? (yes/no): ").lower()
-        if confirm == "yes":
-            if closest_flight.remaining_seats > 0:
-                closest_flight.book_seat()
-                print(f"Booking confirmed for flight {closest_flight.flight_no} at {closest_flight.price}!")
-                break
-            else:
-                print(f"Sorry, no seats are available on flight {closest_flight.flight_no}.")
-        else:
-            print("Booking skipped. Searching next available option...")
+        flight_info = closest_flight.info()
+        row = [
+            start_airport.name,
+            destination_code,
+            flight_info["Flight No"],
+            flight_info["Departure"],
+            flight_info["Arrival"],
+            flight_info["Price"]
+        ]
+        table_data.append(row)
     else:
-        print(f"No flights found close to the price {price} for {destination_code}.")
+        table_data.append([start_airport.name, destination_code, "No matching flight", "-", "-", "-"])
 
-    # Move to the next airport on the path
-    start_airport = airports_with_flights[destination_code]
+    # Update start_airport for the next leg of the path
+    start_airport = airports_with_flights[get_airport_code_by_index(path[i])]
 
+# Define table headers
+headers = ["From", "To", "Flight No", "Departure", "Arrival", "Price"]
+
+# Display the table
+print(tabulate(table_data, headers=headers, tablefmt="grid"))
