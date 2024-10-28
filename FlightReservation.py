@@ -8,15 +8,20 @@ class Flight:
         self.price = price
         self.total_seats = total_seats
         self.remaining_seats = total_seats  # Initialize remaining seats to the total seats
-
     def book_seat(self):
         if self.remaining_seats > 0:
-            self.remaining_seats -= 1
-            print(f"✅ Seat successfully booked on flight {self.flight_no}!")
-            self.print_ticket()
+        # Ask for confirmation before booking
+            confirm = input(f"Do you want to book a seat on flight {self.flight_no} for ${self.price}? (yes/no): ")
+            if confirm.lower() == 'yes':
+                self.remaining_seats -= 1
+                print(f"✅ Seat successfully booked on flight {self.flight_no}!")
+                self.print_ticket()  # Print ticket details
+            else:
+                print("🚫 Booking canceled.")  # Message if booking is canceled
         else:
             print(f"🚫 No seats available on flight {self.flight_no}.")
             print("Please try another flight or check back later.")
+
     def print_ticket(self):
         print("\n" + "="*40)
         print(f"🎟  Flight Ticket for {self.flight_no}")
