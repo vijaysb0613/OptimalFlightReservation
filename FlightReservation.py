@@ -21,7 +21,7 @@ class Flight:
         else:
             print(f"🚫 No seats available on flight {self.flight_no}.")
             print("Please try another flight or check back later.")
-
+    #a function to print the ticket confirmation.
     def print_ticket(self):
         print("\n" + "="*40)
         print(f"🎟  Flight Ticket for {self.flight_no}")
