@@ -21,7 +21,7 @@ class Flight:
         else:
             print(f"🚫 No seats available on flight {self.flight_no}.")
             print("Please try another flight or check back later.")
-
+    #a function to print the ticket confirmation.
     def print_ticket(self):
         print("\n" + "="*40)
         print(f"🎟  Flight Ticket for {self.flight_no}")
@@ -278,6 +278,7 @@ airports = {
     'LHR': 7   
 }
 
+#Implementation of Dijkstra's algorithm to find the shorest path.
 def dijkstra(graph, start, target):
     n = len(graph)
     INF = float('inf')
@@ -309,6 +310,7 @@ def dijkstra(graph, start, target):
 
     return dist[target], path
 
+#A function to display the airport details.
 def disp_info():
     print("Available airports and their indices:")
     for code, index in airports.items():
